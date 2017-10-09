@@ -4,7 +4,7 @@ umask 077
 
 IMAGE=$1
 if [ "$IMAGE" = "" ]; then
-    IMAGE=rancher/enterprise:v2.0.0-alpha10
+    IMAGE=rancher/server:v2.0.0-alpha10
 fi
 
 mkdir -p /var/lib/rancher/etc/server
