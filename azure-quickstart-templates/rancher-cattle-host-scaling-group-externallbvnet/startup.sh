@@ -57,7 +57,7 @@ add-apt-repository \
 
 apt-get update
 
-apt-get install docker-ce=$DOCKER_VERSION~ce-0~ubuntu
+apt-get install -y docker-ce=$DOCKER_VERSION~ce-0~ubuntu
 
 # Write Docker config
 
