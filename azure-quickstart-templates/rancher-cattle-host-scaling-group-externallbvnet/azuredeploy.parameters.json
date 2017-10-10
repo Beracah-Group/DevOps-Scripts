@@ -44,9 +44,9 @@
       "type": "int",
       "defaultValue": 2,
       "metadata": {
-        "description": "Number of Cattle Host VMs. Max 10."
+        "description": "Number of Cattle Host VMs. Max 100."
       },
-      "maxValue": 10
+      "maxValue": 100
     },
     "diskSize": {
       "type": "string",
