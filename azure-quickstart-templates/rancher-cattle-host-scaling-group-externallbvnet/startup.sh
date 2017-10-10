@@ -44,17 +44,20 @@ zpool create -f zpool-docker /dev/sdc
 
 zfs create -o mountpoint=/var/lib/docker zpool-docker/docker
 
-# Install Docker
+# Install Docker 17+
 
-apt-key adv --keyserver hkp://p80.pool.sks-keyservers.net:80 --recv-keys 58118E89F3A912897C070ADBF76221572C52609D
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
 
-apt-add-repository 'deb https://apt.dockerproject.org/repo ubuntu-xenial main'
+apt-key fingerprint 0EBFCD88
+
+add-apt-repository \
+   "deb [arch=amd64] https://download.docker.com/linux/ubuntu \
+   $(lsb_release -cs) \
+   stable"
 
 apt-get update
 
-apt-cache policy docker-engine
-
-apt-get install -y docker-engine=$DOCKER_VERSION-0~ubuntu-xenial
+apt-get install docker-ce=$DOCKER_VERSION~ce-0~ubuntu
 
 # Write Docker config
 
