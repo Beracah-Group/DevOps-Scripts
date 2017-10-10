@@ -69,15 +69,16 @@
   },
   "resources": [
     {
-      "type": "Microsoft.Storage/storageAccounts",
       "name": "[variables('StorageAccountName')]",
+      "type": "Microsoft.Storage/storageAccounts",
+      "apiVersion": "2017-06-01",
+      "sku": {
+        "name": "[variables('StorageAccountType')]"
+      },
+      "kind": "Storage",
       "location": "[resourceGroup().location]",
-      "apiVersion": "2015-06-15",
       "tags": {
         "displayName": "Cattle Storage"
-      },
-      "properties": {
-        "accountType": "[variables('StorageAccountType')]"
       }
     },
     {
