@@ -30,5 +30,19 @@ EOF
 chmod +x /rancher-ha-start.sh
 
 echo Running: /rancher-ha-start.sh $IMAGE
+
+`/var/lib/rancher/bin/rancher-ha-start.sh $IMAGE`
+
+sleep 5
+
+# Loop every 15 seconds until rancher-ha container is running
+
+until [ `docker inspect --format='{{.State.Status}}' rancher-ha` == 'running' ]
+do
+  sleep 5
+  echo "Trying to start rancher-ha container again"
+  `/var/lib/rancher/bin/rancher-ha-start.sh $IMAGE`
+done
+
 echo To re-run please execute: /rancher-ha-start.sh $IMAGE
 exec /rancher-ha-start.sh $IMAGE
