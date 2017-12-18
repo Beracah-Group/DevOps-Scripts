@@ -31,7 +31,7 @@ chmod +x /rancher-ha-start.sh
 
 echo Running: /rancher-ha-start.sh $IMAGE
 
-`/rancher-ha-start.sh $IMAGE`
+exec /rancher-ha-start.sh $IMAGE
 
 sleep 5
 
@@ -41,7 +41,7 @@ until [ `docker inspect --format='{{.State.Status}}' rancher-ha` == 'running' ]
 do
   sleep 5
   echo "Trying to start rancher-ha container again"
-  `/rancher-ha-start.sh $IMAGE`
+  exec /rancher-ha-start.sh $IMAGE
 done
 
 echo To re-run please execute: /rancher-ha-start.sh $IMAGE
