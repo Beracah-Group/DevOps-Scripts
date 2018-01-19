@@ -33,7 +33,7 @@ apt-get install -y docker-ce=$DOCKER_VERSION~ce-0~ubuntu
 
 cat <<EOF > /etc/systemd/system/docker.service
 [Service]
-ExecStart=/usr/bin/docker daemon --storage-driver=zfs
+ExecStart=/usr/bin/dockerd --storage-driver=zfs
 
 [Install]
 WantedBy=multi-user.target

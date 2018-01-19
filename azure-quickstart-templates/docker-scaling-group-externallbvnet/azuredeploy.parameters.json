@@ -79,7 +79,7 @@
     },
     "dockerVersion": {
       "type": "string",
-      "defaultValue": "17.09",
+      "defaultValue": "17.09.1",
       "metadata": {
         "description": "Docker Version to Install"
       }
