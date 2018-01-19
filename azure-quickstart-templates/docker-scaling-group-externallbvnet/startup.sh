@@ -24,7 +24,7 @@ apt-get update
 
 apt-cache policy docker-engine
 
-apt-get install -y docker-engine=$DOCKER_VERSION.0~ce-0~ubuntu-xenial
+apt-get install -y docker-engine=$DOCKER_VERSION-0~ubuntu-xenial
 
 # Write Docker config
 
