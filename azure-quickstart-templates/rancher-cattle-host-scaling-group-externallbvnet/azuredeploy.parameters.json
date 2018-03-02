@@ -111,7 +111,8 @@
         "build",
         "prod",
         "services",
-        "staging"
+        "staging",
+        "dvpsaks"
       ]
     }
   },
