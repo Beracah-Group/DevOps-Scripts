@@ -1,0 +1,113 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "baseName": {
+      "type": "string"
+    },
+    "loadBalancerName": {
+      "type": "string"
+    },
+    "poolName": {
+      "type": "string"
+    },
+    "subnetId": {
+      "type": "string"
+    }
+  },
+  "variables": {
+    "lbId": "[resourceId('Microsoft.Network/loadBalancers', parameters('loadBalancerName'))]",
+    "poolId": "[concat(variables('lbId'), '/backendAddressPools/', parameters('poolName'))]",
+    "frontendIPConfigId": "[concat(variables('lbId'),'/frontendIPConfigurations/loadBalancerFrontEnd')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Network/loadBalancers",
+      "name": "[parameters('baseName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2018-03-01",
+      "properties": {
+        "frontendIPConfigurations": [
+          {
+            "name": "LoadBalancerFrontEnd",
+            "properties": {
+              "privateIPAllocationMethod": "Dynamic",
+              "subnet": {
+                "id": "[parameters('subnetId')]"
+              }
+            }
+          }
+        ],
+        "backendAddressPools": [
+          {
+            "name": "[parameters('poolName')]"
+          }
+        ],
+        "loadBalancingRules": [
+          {
+            "name": "port-80",
+            "properties" :{
+               "frontendIPConfiguration" :{
+                "id": "[variables('frontendIPConfigId')]"
+               },
+              "backendAddressPool": {
+                "id": "[variables('poolId')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 80,
+              "backendPort": 80,
+              "enableFloatingIP": false,
+              "probe": {
+                "id": "[concat(variables('lbId'), '/probes/port-80')]"
+              },
+              "idleTimeoutInMinutes": 4,
+              "loadDistribution": "Default"
+            }
+          },
+          {
+            "name": "port-443",
+            "properties" :{
+               "frontendIPConfiguration" :{
+                "id": "[variables('frontendIPConfigId')]"
+               },
+              "backendAddressPool": {
+                "id": "[variables('poolId')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 443,
+              "backendPort": 443,
+              "enableFloatingIP": false,
+              "probe": {
+                "id": "[concat(variables('lbId'), '/probes/port-443')]"
+              },
+              "idleTimeoutInMinutes": 4,
+              "loadDistribution": "Default"
+            }
+          }
+        ],
+        "probes": [
+          {
+            "name":"port-80",
+            "properties":
+            {
+              "protocol": "Tcp",
+              "port": 80,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          },
+          {
+            "name": "port-443",
+            "properties":
+            {
+              "protocol": "Tcp",
+              "port": 443,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

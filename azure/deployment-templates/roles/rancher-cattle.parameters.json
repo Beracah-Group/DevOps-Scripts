@@ -1,0 +1,166 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templateBaseUrl": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string",
+      "defaultValue": "sc"
+    },
+    "team": {
+      "type": "string",
+      "defaultValue": "techdev"
+    },
+    "component": {
+      "type": "string"
+    },
+    "application": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "devops"
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "Standard_DS3_v2"
+    },
+    "virtualNetworkName": {
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string"
+    },
+    "poolName": {
+      "type": "string",
+      "defaultValue": "[parameters('application')]"
+    },
+    "instanceCount": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "diskSize": {
+      "type": "string",
+      "defaultValue": "128"
+    },
+    "dockerVersion": {
+      "type": "string",
+      "defaultValue": "17.06"
+    },
+    "rancherUrl": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "[concat(parameters('environment'), '-admin')]"
+    },
+    "keyVaultSubscriptionId": {
+      "type": "secureString"
+    },
+    "keyVaultResourceGroupName": {
+      "type": "string"
+    },
+    "keyVaultName": {
+      "type": "string"
+    },
+    "provisioningConfig": {
+      "type": "secureObject",
+      "defaultValue": {}
+    }
+  },
+  "variables": {
+    "baseName": "[concat(parameters('company'), parameters('team'), '-', parameters('component'), '-', parameters('application'), '-', parameters('environment'))]",
+    "vaultPath": "[concat('/subscriptions/', parameters('keyVaultSubscriptionId'), '/resourceGroups/', parameters('keyVaultResourceGroupName'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyVaultName'))]",
+    "storageAccountName": "[concat(parameters('environment') ,uniquestring(resourceGroup().id), 'sa')]",
+    "storageAccountId": "[concat(resourceGroup().id, '/providers/', 'Microsoft.Storage/storageAccounts/', variables('storageAccountName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-08-01",
+      "name": "rancher-cattle",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/roles/rancher-cattle.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "templateBaseUrl": {
+            "value": "[parameters('templateBaseUrl')]"
+          },
+          "company": {
+            "value": "[parameters('company')]"
+          },
+          "team": {
+            "value": "[parameters('team')]"
+          },
+          "component": {
+            "value": "[parameters('component')]"
+          },
+          "application": {
+            "value": "[parameters('application')]"
+          },
+          "environment": {
+            "value": "[parameters('environment')]"
+          },
+          "skuName": {
+            "value": "[parameters('skuName')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "subnetName": {
+            "value": "[parameters('subnetName')]"
+          },
+          "loadBalancerName": {
+            "value": "[variables('baseName')]"
+          },
+          "poolName": {
+            "value": "[parameters('poolName')]"
+          },
+          "instanceCount": {
+            "value": "[parameters('instanceCount')]"
+          },
+          "diskSize": {
+            "value": "[parameters('diskSize')]"
+          },
+          "dockerVersion": {
+            "value": "[parameters('dockerVersion')]"
+          },
+          "rancherUrl": {
+            "value": "[parameters('rancherUrl')]"
+          },
+          "rancherAccessKey": {
+            "reference": {
+              "keyVault": {
+                "id": "[variables('vaultPath')]"
+              },
+              "secretName": "[concat(variables('baseName'), '-rancherAccessKey')]"
+            }
+          },
+          "rancherSecretKey": {
+            "reference": {
+              "keyVault": {
+                "id": "[variables('vaultPath')]"
+              },
+              "secretName": "[concat(variables('baseName'), '-rancherSecretKey')]"
+            }
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "vaultPath": {
+            "value": "[variables('vaultPath')]"
+          },
+          "storageAccountAccessKey": {
+            "value": "[listKeys(variables('storageAccountid'),'2015-05-01-preview').key1]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

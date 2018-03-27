@@ -1,0 +1,127 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templateBaseUrl": {
+      "type": "string"
+    },
+    "skuName": {
+      "type": "string"
+    },
+    "baseName": {
+      "type": "string"
+    },
+    "hostnameBase": {
+      "type": "string"
+    },
+    "networkProfile": {
+      "type": "object"
+    },
+    "instanceCount": {
+      "type": "int",
+      "maxValue": 100
+    },
+    "diskSize": {
+      "type": "string"
+    },
+    "publicKey": {
+      "type": "secureString"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "provisioningConfig": {
+      "type": "secureObject",
+      "defaultValue": {}
+    }
+  },
+  "variables": {
+    "osType": {
+      "publisher": "Canonical",
+      "offer": "UbuntuServer",
+      "sku": "16.04-LTS",
+      "version": "latest"
+    },
+    "imageReference": "[variables('osType')]",
+    "scriptsBaseUrl": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/scripts/')]",
+    "baseProvisioningConfig": {
+      "base": {
+        "scripts": [
+          "05-system-base.sh",
+          "fixes/00-test.sh"
+        ],
+        "scriptURL": "[variables('scriptsBaseUrl')]"
+      }
+    },
+    "provisioningConfig": "[union(variables('baseProvisioningConfig'), parameters('provisioningConfig'))]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Compute/virtualMachineScaleSets",
+      "name": "[parameters('baseName')]",
+      "location": "[resourceGroup().location]",
+      "apiVersion": "2017-12-01",
+      "sku": {
+        "name": "[parameters('skuName')]",
+        "tier": "Standard",
+        "capacity": "[parameters('instanceCount')]"
+      },
+      "properties": {
+        "overprovision": "false",
+        "upgradePolicy": {
+          "mode": "Manual"
+        },
+        "virtualMachineProfile": {
+          "storageProfile": {
+            "dataDisks": [{
+              "lun": "0",
+              "createOption": "empty",
+              "diskSizeGB": "[parameters('diskSize')]"
+            }],
+            "osDisk": {
+              "createOption": "FromImage"
+            },
+            "imageReference": "[variables('imageReference')]"
+          },
+          "osProfile": {
+            "computerNamePrefix": "[parameters('hostnameBase')]",
+            "adminUsername": "[parameters('adminUsername')]",
+            "linuxConfiguration": {
+              "disablePasswordAuthentication": "true",
+              "ssh": {
+                "publicKeys": [
+                  {
+                    "path": "[concat('/home/',parameters('adminUsername'),'/.ssh/authorized_keys')]",
+                    "keyData": "[parameters('publicKey')]"
+                  }
+                ]
+              }
+            }
+          },
+          "networkProfile": "[parameters('networkProfile')]",
+          "extensionProfile": {
+            "extensions": [
+              {
+                "name": "lapextension",
+                "properties": {
+                  "publisher": "Microsoft.Azure.Extensions",
+                  "type": "CustomScript",
+                  "typeHandlerVersion": "2.0",
+                  "autoUpgradeMinorVersion": true,
+                  "settings": {
+                    "fileUris": ["[concat(variables('scriptsBaseUrl'), 'provision.py')]"],
+                    "timestamp": "[length(string(variables('provisioningConfig')))]"
+                  },
+                  "protectedSettings": {
+                    "commandToExecute": "[concat('echo ''', string(variables('provisioningConfig')), ''' > config.json && ', ' python3 provision.py')]"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

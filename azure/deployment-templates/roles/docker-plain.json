@@ -1,0 +1,124 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templateBaseUrl": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "team": {
+      "type": "string"
+    },
+    "component": {
+      "type": "string"
+    },
+    "application": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "string"
+    },
+    "skuName": {
+      "type": "string"
+    },
+    "virtualNetworkName": {
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string"
+    },
+    "instanceCount": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "diskSize": {
+      "type": "string"
+    },
+    "dockerVersion": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "[concat(parameters('environment'), '-admin')]"
+    },
+    "vaultPath": {
+      "type": "string"
+    },
+    "provisioningConfig": {
+      "type": "secureObject",
+      "defaultValue": {}
+    }
+  },
+  "variables": {
+    "baseName": "[concat(parameters('company'), parameters('team'), '-', parameters('component'), '-', parameters('application'), '-', parameters('environment'))]",
+    "networkProfile": {
+      "networkInterfaceConfigurations": [
+        {
+          "name": "[concat(variables('baseName'), 'nic')]",
+          "properties": {
+            "primary": "true",
+            "ipConfigurations": [
+              {
+                "name": "[concat(variables('baseName'), 'ipconfig')]",
+                "properties": {
+                  "subnet": {
+                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'), '/subnets/', parameters('subnetName'))]"
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-08-01",
+      "name": "docker-ubuntu",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/services/docker-ubuntu.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "templateBaseUrl": {
+            "value": "[parameters('templateBaseUrl')]"
+          },
+          "skuName": {
+            "value": "[parameters('skuName')]"
+          },
+          "networkProfile": {
+            "value": "[variables('networkProfile')]"
+          },
+          "instanceCount": {
+            "value": "[parameters('instanceCount')]"
+          },
+          "diskSize": {
+            "value": "[parameters('diskSize')]"
+          },
+          "dockerVersion": {
+            "value": "[parameters('dockerVersion')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "baseName": {
+            "value": "[variables('baseName')]"
+          },
+          "hostnameBase": {
+            "value": "[concat(parameters('application'), '-', parameters('environment'))]"
+          },
+          "vaultPath": {
+            "value": "[parameters('vaultPath')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

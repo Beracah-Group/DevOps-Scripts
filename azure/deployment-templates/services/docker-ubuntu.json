@@ -1,0 +1,111 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templateBaseUrl": {
+      "type": "string"
+    },
+    "skuName": {
+      "type": "string"
+    },
+    "networkProfile": {
+      "type": "object"
+    },
+    "instanceCount": {
+      "type": "int"
+    },
+    "diskSize": {
+      "type": "string"
+    },
+    "dockerVersion": {
+      "type": "string"
+    },
+    "adminUsername": {
+      "type": "string"
+    },
+    "baseName": {
+      "type": "string"
+    },
+    "hostnameBase": {
+      "type": "string"
+    },
+    "vaultPath": {
+      "type": "secureString"
+    },
+    "provisioningConfig": {
+      "type": "secureObject",
+      "defaultValue": {}
+    }
+  },
+  "variables": {
+    "baseProvisioningConfig": {
+      "docker": {
+        "scripts": [
+          "10-storage-xfs.sh",
+          "20-docker-install.sh",
+          "fixes/00-bad-mount.sh",
+          "fixes/00-hostname-in-hosts.sh",
+          "fixes/00-max_map_count-sysctl.sh",
+          "fixes/00-nofile-bump.sh"
+        ],
+        "envVars": {
+          "ADMIN_USERNAME": "[parameters('adminUsername')]",
+          "DOCKER_VERSION": "[parameters('dockerVersion')]"
+        }
+      }
+    },
+    "provisioningConfig": "[union(variables('baseProvisioningConfig'), parameters('provisioningConfig'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-08-01",
+      "name": "scaleset",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/resources/scaleset.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "templateBaseUrl": {
+            "value": "[parameters('templateBaseUrl')]"
+          },
+          "skuName": {
+            "value": "[parameters('skuName')]"
+          },
+          "baseName": {
+            "value": "[parameters('baseName')]"
+          },
+          "hostnameBase": {
+            "value": "[parameters('hostnameBase')]"
+          },
+          "networkProfile": {
+            "value": "[parameters('networkProfile')]"
+          },
+          "instanceCount": {
+            "value": "[parameters('instanceCount')]"
+          },
+          "diskSize": {
+            "value": "[parameters('diskSize')]"
+          },
+          "publicKey": {
+            "reference": {
+              "keyVault": {
+                "id": "[parameters('vaultPath')]"
+              },
+              "secretName": "[concat(parameters('baseName'), '-adminssh')]"
+            }
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "provisioningConfig": {
+            "value": "[variables('provisioningConfig')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

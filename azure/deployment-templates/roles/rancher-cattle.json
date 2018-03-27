@@ -1,0 +1,209 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templateBaseUrl": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string"
+    },
+    "team": {
+      "type": "string"
+    },
+    "component": {
+      "type": "string"
+    },
+    "application": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "string"
+    },
+    "skuName": {
+      "type": "string"
+    },
+    "virtualNetworkName": {
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string"
+    },
+    "loadBalancerName": {
+      "type": "string"
+    },
+    "poolName": {
+      "type": "string"
+    },
+    "instanceCount": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "diskSize": {
+      "type": "string"
+    },
+    "dockerVersion": {
+      "type": "string"
+    },
+    "rancherUrl": {
+      "type": "string"
+    },
+    "rancherAccessKey": {
+      "type": "secureString"
+    },
+    "rancherSecretKey": {
+      "type": "secureString"
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "[concat(parameters('environment'), '-admin')]"
+    },
+    "vaultPath": {
+      "type": "string"
+    },
+    "storageAccountAccessKey": {
+      "type": "secureString"
+    },
+    "provisioningConfig": {
+      "type": "secureObject",
+      "defaultValue": {}
+    }
+  },
+  "variables": {
+    "baseName": "[concat(parameters('company'), parameters('team'), '-', parameters('component'), '-', parameters('application'), '-', parameters('environment'))]",
+    "storageAccountName": "[concat(parameters('environment') ,uniquestring(resourceGroup().id), 'sa')]",
+    "baseProvisioningConfig": {
+      "cattle": {
+        "scripts": [
+          "20-rancher-prereqs.sh",
+          "80-rancher-autojoin.py",
+          "10-storage-persist.sh"
+        ],
+        "envVars": {
+          "RANCHER_URL": "[parameters('rancherUrl')]",
+          "RANCHER_ACCESS_KEY": "[parameters('rancherAccessKey')]",
+          "RANCHER_SECRET_KEY": "[parameters('rancherSecretKey')]",
+          "STORAGE_ACCOUNT_NAME": "[variables('storageAccountName')]",
+          "STORAGE_ACCESS_KEY": "[parameters('storageAccountAccessKey')]"
+        }
+      }
+    },
+    "provisioningConfig": "[union(variables('baseProvisioningConfig'), parameters('provisioningConfig'))]",
+    "subnetId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'), '/subnets/', parameters('subnetName'))]",
+    "networkProfile": {
+      "networkInterfaceConfigurations": [
+        {
+          "name": "[concat(variables('baseName'), 'nic')]",
+          "properties": {
+            "primary": "true",
+            "ipConfigurations": [
+              {
+                "name": "[concat(variables('baseName'), 'ipconfig')]",
+                "properties": {
+                  "subnet": {
+                    "id": "[variables('subnetId')]"
+                  },
+                  "loadBalancerBackendAddressPools": [
+                    {
+                      "id": "[concat('/subscriptions/', subscription().subscriptionId,'/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/loadBalancers/', parameters('loadBalancerName'), '/backendAddressPools/', parameters('poolName'))]"
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-08-01",
+      "name": "cattlestorage",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/resources/storageaccount.json')]"
+        },
+        "parameters": {
+          "environment": {
+            "value": "[parameters('environment')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-08-01",
+      "name": "loadbalancer",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/resources/loadbalancer.json')]"
+        },
+        "parameters": {
+          "baseName": {
+            "value": "[variables('baseName')]"
+          },
+          "loadBalancerName": {
+            "value": "[parameters('loadBalancerName')]"
+          },
+          "poolName": {
+            "value": "[parameters('poolName')]"
+          },
+          "subnetId": {
+            "value": "[variables('subnetId')]"
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "2017-08-01",
+      "name": "docker-ubuntu",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/services/docker-ubuntu.json')]"
+        },
+        "parameters": {
+          "templateBaseUrl": {
+            "value": "[parameters('templateBaseUrl')]"
+          },
+          "skuName": {
+            "value": "[parameters('skuName')]"
+          },
+          "networkProfile": {
+            "value": "[variables('networkProfile')]"
+          },
+          "instanceCount": {
+            "value": "[parameters('instanceCount')]"
+          },
+          "diskSize": {
+            "value": "[parameters('diskSize')]"
+          },
+          "dockerVersion": {
+            "value": "[parameters('dockerVersion')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "baseName": {
+            "value": "[variables('baseName')]"
+          },
+          "hostnameBase": {
+            "value": "[concat(parameters('application'), '-', parameters('environment'))]"
+          },
+          "vaultPath": {
+            "value": "[parameters('vaultPath')]"
+          },
+          "provisioningConfig": {
+            "value": "[variables('provisioningConfig')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}

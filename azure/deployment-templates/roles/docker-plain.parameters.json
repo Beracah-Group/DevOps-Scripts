@@ -1,0 +1,129 @@
+{
+  "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "templateBaseUrl": {
+      "type": "string"
+    },
+    "company": {
+      "type": "string",
+      "defaultValue": "sc"
+    },
+    "team": {
+      "type": "string",
+      "defaultValue": "techdev"
+    },
+    "component": {
+      "type": "string"
+    },
+    "application": {
+      "type": "string"
+    },
+    "environment": {
+      "type": "string",
+      "defaultValue": "devops"
+    },
+    "skuName": {
+      "type": "string",
+      "defaultValue": "Standard_DS3_v2"
+    },
+    "virtualNetworkName": {
+      "type": "string"
+    },
+    "subnetName": {
+      "type": "string"
+    },
+    "instanceCount": {
+      "type": "int",
+      "defaultValue": 2
+    },
+    "diskSize": {
+      "type": "string",
+      "defaultValue": "128"
+    },
+    "dockerVersion": {
+      "type": "string",
+      "defaultValue": "17.06"
+    },
+    "adminUsername": {
+      "type": "string",
+      "defaultValue": "[concat(parameters('environment'), '-admin')]"
+    },
+    "keyVaultSubscriptionId": {
+      "type": "secureString"
+    },
+    "keyVaultResourceGroupName": {
+      "type": "string"
+    },
+    "keyVaultName": {
+      "type": "string"
+    },
+    "provisioningConfig": {
+      "type": "secureObject",
+      "defaultValue": {}
+    }
+  },
+  "variables": {
+    "baseName": "[concat(parameters('company'), parameters('team'), '-', parameters('component'), '-', parameters('application'), '-', parameters('environment'))]",
+    "vaultPath": "[concat('/subscriptions/', parameters('keyVaultSubscriptionId'), '/resourceGroups/', parameters('keyVaultResourceGroupName'), '/providers/Microsoft.KeyVault/vaults/', parameters('keyVaultName'))]"
+  },
+  "resources": [
+    {
+      "apiVersion": "2017-08-01",
+      "name": "docker-plain",
+      "type": "Microsoft.Resources/deployments",
+      "properties": {
+        "mode": "incremental",
+        "templateLink": {
+          "uri": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/roles/docker-plain.json')]",
+          "contentVersion": "1.0.0.0"
+        },
+        "parameters": {
+          "templateBaseUrl": {
+            "value": "[parameters('templateBaseUrl')]"
+          },
+          "company": {
+            "value": "[parameters('company')]"
+          },
+          "team": {
+            "value": "[parameters('team')]"
+          },
+          "component": {
+            "value": "[parameters('component')]"
+          },
+          "application": {
+            "value": "[parameters('application')]"
+          },
+          "environment": {
+            "value": "[parameters('environment')]"
+          },
+          "skuName": {
+            "value": "[parameters('skuName')]"
+          },
+          "virtualNetworkName": {
+            "value": "[parameters('virtualNetworkName')]"
+          },
+          "subnetName": {
+            "value": "[parameters('subnetName')]"
+          },
+          "instanceCount": {
+            "value": "[parameters('instanceCount')]"
+          },
+          "diskSize": {
+            "value": "[parameters('diskSize')]"
+          },
+          "dockerVersion": {
+            "value": "[parameters('dockerVersion')]"
+          },
+          "adminUsername": {
+            "value": "[parameters('adminUsername')]"
+          },
+          "vaultPath": {
+            "value": "[variables('vaultPath')]"
+          }
+        }
+      }
+    }
+  ],
+  "outputs": {}
+}
