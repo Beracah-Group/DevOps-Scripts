@@ -47,8 +47,14 @@
     "baseProvisioningConfig": {
       "base": {
         "scripts": [
-          "05-system-base.sh",
-          "fixes/00-test.sh"
+          "00-system-base.sh",
+          "fixes/05-test.sh",
+          "fixes/05-bad-mount.sh",
+          "fixes/05-hostname-in-hosts.sh",
+          "fixes/05-max_map_count-sysctl.sh",
+          "fixes/05-nofile-bump.sh",
+          "fixes/05-rsyslog-shipper.sh",
+          "fixes/05-udev-macaddresspolicy.sh"
         ],
         "scriptURL": "[variables('scriptsBaseUrl')]"
       }

@@ -42,11 +42,7 @@
       "docker": {
         "scripts": [
           "10-storage-xfs.sh",
-          "20-docker-install.sh",
-          "fixes/00-bad-mount.sh",
-          "fixes/00-hostname-in-hosts.sh",
-          "fixes/00-max_map_count-sysctl.sh",
-          "fixes/00-nofile-bump.sh"
+          "20-docker-install.sh"
         ],
         "envVars": {
           "ADMIN_USERNAME": "[parameters('adminUsername')]",

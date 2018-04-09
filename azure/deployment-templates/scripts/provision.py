@@ -24,7 +24,7 @@ class Script(object):
         return self.name.split('/')[-1]
 
     def execute(self):
-        run_file = "/var/run/provisioning-{}.run".format(self.script)
+        run_file = "/var/lib/waagent/custom-script/provisioning-{}.lock".format(self.script)
 
         if not os.path.exists(run_file):
             print("Executing {}".format(self))

@@ -36,8 +36,7 @@
       "type": "string"
     },
     "instanceCount": {
-      "type": "int",
-      "defaultValue": 2
+      "type": "int"
     },
     "diskSize": {
       "type": "string"
