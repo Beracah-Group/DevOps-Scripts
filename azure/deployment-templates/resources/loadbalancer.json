@@ -45,7 +45,7 @@
         ],
         "loadBalancingRules": [
           {
-            "name": "port-80",
+            "name": "http",
             "properties" :{
                "frontendIPConfiguration" :{
                 "id": "[variables('frontendIPConfigId')]"
@@ -58,14 +58,14 @@
               "backendPort": 80,
               "enableFloatingIP": false,
               "probe": {
-                "id": "[concat(variables('lbId'), '/probes/port-80')]"
+                "id": "[concat(variables('lbId'), '/probes/http')]"
               },
               "idleTimeoutInMinutes": 4,
               "loadDistribution": "Default"
             }
           },
           {
-            "name": "port-443",
+            "name": "https",
             "properties" :{
                "frontendIPConfiguration" :{
                 "id": "[variables('frontendIPConfigId')]"
@@ -78,7 +78,47 @@
               "backendPort": 443,
               "enableFloatingIP": false,
               "probe": {
-                "id": "[concat(variables('lbId'), '/probes/port-443')]"
+                "id": "[concat(variables('lbId'), '/probes/https')]"
+              },
+              "idleTimeoutInMinutes": 4,
+              "loadDistribution": "Default"
+            }
+          },
+          {
+            "name": "syslog",
+            "properties" :{
+               "frontendIPConfiguration" :{
+                "id": "[variables('frontendIPConfigId')]"
+               },
+              "backendAddressPool": {
+                "id": "[variables('poolId')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 6514,
+              "backendPort": 6514,
+              "enableFloatingIP": false,
+              "probe": {
+                "id": "[concat(variables('lbId'), '/probes/syslog')]"
+              },
+              "idleTimeoutInMinutes": 4,
+              "loadDistribution": "Default"
+            }
+          },
+          {
+            "name": "kibana",
+            "properties" :{
+               "frontendIPConfiguration" :{
+                "id": "[variables('frontendIPConfigId')]"
+               },
+              "backendAddressPool": {
+                "id": "[variables('poolId')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 5601,
+              "backendPort": 5601,
+              "enableFloatingIP": false,
+              "probe": {
+                "id": "[concat(variables('lbId'), '/probes/kibana')]"
               },
               "idleTimeoutInMinutes": 4,
               "loadDistribution": "Default"
@@ -87,7 +127,7 @@
         ],
         "probes": [
           {
-            "name":"port-80",
+            "name":"http",
             "properties":
             {
               "protocol": "Tcp",
@@ -97,11 +137,31 @@
             }
           },
           {
-            "name": "port-443",
+            "name": "https",
             "properties":
             {
               "protocol": "Tcp",
               "port": 443,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          },
+          {
+            "name": "syslog",
+            "properties":
+            {
+              "protocol": "Tcp",
+              "port": 443,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          },
+          {
+            "name": "kibana",
+            "properties":
+            {
+              "protocol": "Tcp",
+              "port": 6501,
               "intervalInSeconds": 5,
               "numberOfProbes": 2
             }
