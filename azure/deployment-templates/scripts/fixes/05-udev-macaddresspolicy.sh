@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+set -e
+
 #
 # https://github.com/systemd/systemd/issues/3374
 

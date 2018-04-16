@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # Update Ubuntu
 apt-get update

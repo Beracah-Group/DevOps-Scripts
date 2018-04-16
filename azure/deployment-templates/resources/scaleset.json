@@ -30,6 +30,12 @@
     "adminUsername": {
       "type": "string"
     },
+    "installTwistlockDefender": {
+      "type": "bool"
+    },
+    "tlBearer": {
+      "type": "secureString"
+    },
     "provisioningConfig": {
       "type": "secureObject",
       "defaultValue": {}
@@ -49,12 +55,19 @@
         "scripts": {
           "00-system-base.sh": "o",
           "00-waagent-config.sh": "i",
+          "20-twistlock-defender-install.sh": "i",
           "fixes/05-bad-mount.sh": "i",
           "fixes/05-hostname-in-hosts.sh": "o",
           "fixes/05-max_map_count-sysctl.sh": "o",
           "fixes/05-nofile-bump.sh": "o",
           "fixes/05-rsyslog-shipper.sh": "i",
           "fixes/05-udev-macaddresspolicy.sh": "i"
+        },
+        "envVars": {
+          "INSTALL_TWISTLOCK": "[string(parameters('installTwistlockDefender'))]",
+          "TL_BEARER": "[parameters('tlBearer')]",
+          "TL_HOST": "tw-console.steelcase.com",
+          "TL_PORT": "8443"
         },
         "scriptURL": "[variables('scriptsBaseUrl')]"
       }
@@ -119,7 +132,7 @@
                     "timestamp": "[length(string(variables('provisioningConfig')))]"
                   },
                   "protectedSettings": {
-                    "commandToExecute": "[concat('echo ''', string(variables('provisioningConfig')), ''' > config.json && ', ' python3 provision.py')]"
+                    "commandToExecute": "[concat('echo ''', string(variables('provisioningConfig')), ''' > config.json && ', ' python3 -u provision.py')]"
                   }
                 }
               }

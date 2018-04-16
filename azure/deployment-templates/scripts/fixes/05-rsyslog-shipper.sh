@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # Write Docker config
 cat <<EOF > /etc/rsyslog.d/49-syslog-to-elk.conf

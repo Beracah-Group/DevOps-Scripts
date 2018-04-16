@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 
 # Install Docker
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | apt-key add -
