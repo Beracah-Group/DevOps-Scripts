@@ -32,6 +32,9 @@
     "vaultPath": {
       "type": "secureString"
     },
+    "installTwistlockDefender": {
+      "type": "bool"
+    },
     "provisioningConfig": {
       "type": "secureObject",
       "defaultValue": {}
@@ -40,13 +43,16 @@
   "variables": {
     "baseProvisioningConfig": {
       "docker": {
-        "scripts": [
-          "10-storage-xfs.sh",
-          "20-docker-install.sh"
-        ],
+        "scripts": {
+          "10-storage-xfs.sh": "o",
+          "20-docker-install.sh": "o",
+          "20-twistlock-defender-install.sh": "i"
+        },
         "envVars": {
           "ADMIN_USERNAME": "[parameters('adminUsername')]",
-          "DOCKER_VERSION": "[parameters('dockerVersion')]"
+          "DOCKER_VERSION": "[parameters('dockerVersion')]",
+          "INSTALL_TWISTLOCK": "[string(parameters('installTwistlockDefender'))]"
+
         }
       }
     },

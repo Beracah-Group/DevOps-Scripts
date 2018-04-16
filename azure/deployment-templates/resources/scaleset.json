@@ -46,16 +46,16 @@
     "scriptsBaseUrl": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/scripts/')]",
     "baseProvisioningConfig": {
       "base": {
-        "scripts": [
-          "00-system-base.sh",
-          "fixes/05-test.sh",
-          "fixes/05-bad-mount.sh",
-          "fixes/05-hostname-in-hosts.sh",
-          "fixes/05-max_map_count-sysctl.sh",
-          "fixes/05-nofile-bump.sh",
-          "fixes/05-rsyslog-shipper.sh",
-          "fixes/05-udev-macaddresspolicy.sh"
-        ],
+        "scripts": {
+          "00-system-base.sh": "o",
+          "00-waagent-config.sh": "i",
+          "fixes/05-bad-mount.sh": "i",
+          "fixes/05-hostname-in-hosts.sh": "o",
+          "fixes/05-max_map_count-sysctl.sh": "o",
+          "fixes/05-nofile-bump.sh": "o",
+          "fixes/05-rsyslog-shipper.sh": "i",
+          "fixes/05-udev-macaddresspolicy.sh": "i"
+        },
         "scriptURL": "[variables('scriptsBaseUrl')]"
       }
     },

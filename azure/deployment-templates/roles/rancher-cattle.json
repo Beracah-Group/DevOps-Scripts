@@ -60,6 +60,9 @@
     "vaultPath": {
       "type": "string"
     },
+    "installTwistlockDefender": {
+      "type": "bool"
+    },
     "storageAccountAccessKey": {
       "type": "secureString"
     },
@@ -73,11 +76,11 @@
     "storageAccountName": "[concat(parameters('environment') ,uniquestring(resourceGroup().id), 'sa')]",
     "baseProvisioningConfig": {
       "cattle": {
-        "scripts": [
-          "20-rancher-prereqs.sh",
-          "80-rancher-autojoin.py",
-          "10-storage-persist.sh"
-        ],
+        "scripts": {
+          "20-rancher-prereqs.sh": "i",
+          "80-rancher-autojoin.py": "o",
+          "10-storage-persist.sh": "o"
+        },
         "envVars": {
           "RANCHER_URL": "[parameters('rancherUrl')]",
           "RANCHER_ACCESS_KEY": "[parameters('rancherAccessKey')]",
@@ -196,6 +199,9 @@
           },
           "vaultPath": {
             "value": "[parameters('vaultPath')]"
+          },
+          "installTwistlockDefender": {
+            "value": "[parameters('installTwistlockDefender')]"
           },
           "provisioningConfig": {
             "value": "[variables('provisioningConfig')]"

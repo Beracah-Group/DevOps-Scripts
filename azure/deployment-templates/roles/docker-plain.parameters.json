@@ -57,6 +57,9 @@
     "keyVaultName": {
       "type": "string"
     },
+    "installTwistlockDefender": {
+      "type": "bool"
+    },
     "provisioningConfig": {
       "type": "secureObject",
       "defaultValue": {}
@@ -119,6 +122,9 @@
           },
           "vaultPath": {
             "value": "[variables('vaultPath')]"
+          },
+          "installTwistlockDefender": {
+            "value": "[parameters('installTwistlockDefender')]"
           }
         }
       }

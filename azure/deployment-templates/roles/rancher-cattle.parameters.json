@@ -64,6 +64,9 @@
     "keyVaultName": {
       "type": "string"
     },
+    "installTwistlockDefender": {
+      "type": "bool"
+    },
     "provisioningConfig": {
       "type": "secureObject",
       "defaultValue": {}
@@ -153,6 +156,9 @@
           },
           "vaultPath": {
             "value": "[variables('vaultPath')]"
+          },
+          "installTwistlockDefender": {
+            "value": "[parameters('installTwistlockDefender')]"
           },
           "storageAccountAccessKey": {
             "value": "[listKeys(variables('storageAccountid'),'2015-05-01-preview').key1]"
