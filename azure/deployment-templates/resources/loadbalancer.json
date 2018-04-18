@@ -123,6 +123,26 @@
               "idleTimeoutInMinutes": 4,
               "loadDistribution": "Default"
             }
+          },
+          {
+            "name": "grafana",
+            "properties" :{
+               "frontendIPConfiguration" :{
+                "id": "[variables('frontendIPConfigId')]"
+               },
+              "backendAddressPool": {
+                "id": "[variables('poolId')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 3000,
+              "backendPort": 3000,
+              "enableFloatingIP": false,
+              "probe": {
+                "id": "[concat(variables('lbId'), '/probes/grafana')]"
+              },
+              "idleTimeoutInMinutes": 4,
+              "loadDistribution": "Default"
+            }
           }
         ],
         "probes": [
@@ -162,6 +182,16 @@
             {
               "protocol": "Tcp",
               "port": 6501,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          },
+          {
+            "name": "grafana",
+            "properties":
+            {
+              "protocol": "Tcp",
+              "port": 3000,
               "intervalInSeconds": 5,
               "numberOfProbes": 2
             }
