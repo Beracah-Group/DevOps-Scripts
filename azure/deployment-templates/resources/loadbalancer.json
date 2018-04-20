@@ -181,7 +181,7 @@
             "properties":
             {
               "protocol": "Tcp",
-              "port": 6501,
+              "port": 5601,
               "intervalInSeconds": 5,
               "numberOfProbes": 2
             }
