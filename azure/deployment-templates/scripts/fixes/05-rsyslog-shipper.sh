@@ -24,6 +24,7 @@ template(name="json-template"
 \$ActionQueueSaveOnShutdown on # save in-memory data if rsyslog shuts down
 
 *.*                         @@localhost:9514;json-template
+*.*                         @172.20.10.15
 EOF
 
 service rsyslog restart

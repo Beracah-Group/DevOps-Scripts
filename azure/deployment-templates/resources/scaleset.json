@@ -55,7 +55,7 @@
         "scripts": {
           "00-system-base.sh": "o",
           "00-waagent-config.sh": "i",
-          "90-twistlock-defender-install.sh": "ii",
+          "90-twistlock-defender-install.sh": "o",
           "fixes/05-bad-mount.sh": "i",
           "fixes/05-hostname-in-hosts.sh": "o",
           "fixes/05-inotify-bump.sh": "o",
