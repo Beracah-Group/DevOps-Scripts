@@ -143,6 +143,26 @@
               "idleTimeoutInMinutes": 4,
               "loadDistribution": "Default"
             }
+          },
+          {
+            "name": "nagios",
+            "properties" :{
+               "frontendIPConfiguration" :{
+                "id": "[variables('frontendIPConfigId')]"
+               },
+              "backendAddressPool": {
+                "id": "[variables('poolId')]"
+              },
+              "protocol": "Tcp",
+              "frontendPort": 28888,
+              "backendPort": 28888,
+              "enableFloatingIP": false,
+              "probe": {
+                "id": "[concat(variables('lbId'), '/probes/nagios')]"
+              },
+              "idleTimeoutInMinutes": 4,
+              "loadDistribution": "Default"
+            }
           }
         ],
         "probes": [
@@ -192,6 +212,16 @@
             {
               "protocol": "Tcp",
               "port": 3000,
+              "intervalInSeconds": 5,
+              "numberOfProbes": 2
+            }
+          },
+          {
+            "name": "nagios",
+            "properties":
+            {
+              "protocol": "Tcp",
+              "port": 28888,
               "intervalInSeconds": 5,
               "numberOfProbes": 2
             }
