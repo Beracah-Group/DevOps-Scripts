@@ -55,6 +55,9 @@
   },
   "variables": {
     "baseName": "[concat(parameters('company'), parameters('team'), '-', parameters('component'), '-', parameters('application'), '-', parameters('environment'))]",
+    "baseProvisioningConfig": {},
+    "provisioningConfig": "[union(variables('baseProvisioningConfig'), parameters('provisioningConfig'))]",
+    "subnetId": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'), '/subnets/', parameters('subnetName'))]",
     "networkProfile": {
       "networkInterfaceConfigurations": [
         {
@@ -66,7 +69,7 @@
                 "name": "[concat(variables('baseName'), 'ipconfig')]",
                 "properties": {
                   "subnet": {
-                    "id": "[concat('/subscriptions/', subscription().subscriptionId, '/resourceGroups/', resourceGroup().name, '/providers/Microsoft.Network/virtualNetworks/', parameters('virtualNetworkName'), '/subnets/', parameters('subnetName'))]"
+                    "id": "[variables('subnetId')]"
                   }
                 }
               }
@@ -84,8 +87,7 @@
       "properties": {
         "mode": "incremental",
         "templateLink": {
-          "uri": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/services/docker-ubuntu.json')]",
-          "contentVersion": "1.0.0.0"
+          "uri": "[concat(parameters('templateBaseUrl'), '/azure/deployment-templates/services/docker-ubuntu.json')]"
         },
         "parameters": {
           "templateBaseUrl": {
@@ -120,6 +122,9 @@
           },
           "installTwistlockDefender": {
             "value": "[parameters('installTwistlockDefender')]"
+          },
+          "provisioningConfig": {
+            "value": "[variables('provisioningConfig')]"
           }
         }
       }
